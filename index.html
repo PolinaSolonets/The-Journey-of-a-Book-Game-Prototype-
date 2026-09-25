@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Das Buch auf Reisen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,500;0,700;0,800;1,500&family=Alegreya+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDEFE6; --card:#F8F9F3; --ink:#1E2A3A; --muted:#566273;
+  --rubric:#B3261E; --rubric-soft:#F3DCD8; --sea:#2F6F8F; --sea-soft:#D6E6EC;
+  --gold:#B8862A; --line:#C9CEC0; --good:#2E7D4F;
+  --serif:"Alegreya", Georgia, "Times New Roman", serif;
+  --sans:"Alegreya Sans", "Trebuchet MS", system-ui, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#16202C; --card:#1E2A38; --ink:#E9ECE3; --muted:#A7B0BC;
+    --rubric:#E46A5F; --rubric-soft:#3A2528; --sea:#6FB0CC; --sea-soft:#1D3441;
+    --gold:#E0B25A; --line:#34424F; --good:#6CC592;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#16202C; --card:#1E2A38; --ink:#E9ECE3; --muted:#A7B0BC;
+  --rubric:#E46A5F; --rubric-soft:#3A2528; --sea:#6FB0CC; --sea-soft:#1D3441;
+  --gold:#E0B25A; --line:#34424F; --good:#6CC592;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:1.15rem;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:34rem;margin:0 auto;padding:1rem 1.1rem 2rem}
+.top{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.5rem}
+.brand{font-family:var(--sans);font-weight:700;font-size:.85rem;color:var(--muted)}
+.lang{display:flex;border:1.5px solid var(--line);border-radius:999px;overflow:hidden}
+.lang button{font:700 .85rem var(--sans);background:none;border:0;color:var(--muted);padding:.3rem .7rem;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+
+/* map: the memorable element */
+.map{background:var(--sea-soft);border-radius:18px;padding:.4rem .4rem .2rem;margin:.3rem 0 .8rem;overflow:hidden}
+.map svg{display:block;width:100%;height:auto}
+.map .route{fill:none;stroke:var(--sea);stroke-width:2;stroke-dasharray:5 5;opacity:.7}
+.map .land{fill:var(--card);opacity:.9}
+.map .stop{fill:var(--card);stroke:var(--ink);stroke-width:2}
+.map .stop.done{fill:var(--rubric);stroke:var(--rubric)}
+.map .lbl{font:700 9.5px var(--sans);fill:var(--ink)}
+.map .marker{transition:transform .8s cubic-bezier(.5,0,.2,1)}
+
+.stats{display:flex;gap:.5rem;margin-bottom:.9rem}
+.stat{flex:1;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:.35rem .5rem;text-align:center;font-family:var(--sans)}
+.stat b{display:block;font-size:1.2rem;font-weight:800;line-height:1.2}
+.stat span{font-size:.78rem;color:var(--muted);font-weight:700}
+
+.scene{background:var(--card);border-radius:22px;padding:1.3rem 1.2rem 1.2rem;border:1.5px solid var(--line)}
+.place{font-family:var(--sans);font-weight:700;color:var(--rubric);font-size:.95rem;margin:0}
+h1,h2{font-weight:800;line-height:1.1;margin:.1rem 0 .6rem}
+h2{font-size:1.9rem}
+.icon{font-size:2.6rem;line-height:1;float:right;margin:0 0 .4rem .6rem}
+p{margin:0 0 .9rem}
+.choices{display:grid;gap:.6rem;margin-top:1rem;clear:both}
+.btn{font:800 1.08rem/1.25 var(--sans);text-align:left;width:100%;padding:.9rem 1rem;border-radius:14px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer;touch-action:manipulation}
+.btn:hover{background:var(--sea-soft)}
+.btn.primary{background:var(--rubric);border-color:var(--rubric);color:#fff;text-align:center}
+.btn.primary:hover{filter:brightness(1.08);background:var(--rubric)}
+.btn:focus-visible,.lang button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.2rem 0 1rem}
+.chip{font:800 .95rem var(--sans);padding:.2rem .6rem;border-radius:999px;background:var(--paper);border:1.5px solid var(--line)}
+.chip.up{color:var(--good);border-color:var(--good)}
+.chip.down{color:var(--rubric);border-color:var(--rubric)}
+
+.fact{background:var(--rubric-soft);border-left:5px solid var(--rubric);border-radius:4px 14px 14px 4px;padding:.8rem .9rem;margin:.4rem 0 1rem}
+.fact strong{font-family:var(--sans);display:block;color:var(--rubric);margin-bottom:.2rem}
+.fact p{margin:0;font-size:1.05rem}
+
+.die{font-size:3.4rem;text-align:center;line-height:1;margin:.2rem 0 .7rem}
+
+/* start + end */
+.hero{text-align:center;padding:1rem 0 .5rem}
+.hero h1{font-size:clamp(2.6rem,11vw,3.6rem);letter-spacing:-.01em;margin-bottom:.3rem}
+.hero h1 .l2{display:block;color:var(--rubric);font-style:italic;font-weight:500}
+.hero p{color:var(--muted);max-width:26rem;margin:0 auto 1.2rem}
+label{font:700 1rem var(--sans);display:block;margin-bottom:.35rem}
+input{font:700 1.15rem var(--serif);width:100%;padding:.75rem .9rem;border-radius:12px;border:2px solid var(--line);background:var(--paper);color:var(--ink);margin-bottom:1rem}
+.seal{display:block;width:min(15rem,70vw);height:auto;margin:.2rem auto 1rem}
+.seal .ring{fill:none;stroke:var(--rubric);stroke-width:3}
+.seal .ring2{fill:none;stroke:var(--rubric);stroke-width:1.2}
+.seal text{fill:var(--rubric);font-family:var(--serif);font-weight:800}
+.claim{text-align:center;font:800 1.15rem var(--sans);background:var(--gold);color:#1E2A3A;border-radius:14px;padding:.8rem 1rem;margin:0 0 1rem}
+.foot{text-align:center;font:500 .8rem var(--sans);color:var(--muted);margin-top:1.4rem}
+.anim{animation:rise .45s ease-out}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.anim{animation:none}.map .marker{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand" id="brand"></div>
+    <div class="lang" role="group" aria-label="Sprache / Language">
+      <button id="lang-de" aria-pressed="true">DE</button>
+      <button id="lang-en" aria-pressed="false">EN</button>
+    </div>
+  </div>
+  <main id="app"></main>
+  <div class="foot" id="foot"></div>
+</div>
+
+<script>
+(function(){
+const L=(de,en)=>({de,en});
+const cat=(a,b)=>({de:(a.de+' '+b.de).trim(),en:(a.en+' '+b.en).trim()});
+const EMPTY=L('','');
+const chance=p=>Math.random()<p;
+const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const UI={
+  brand:L('Das Buch auf Reisen','The Journey of a Book'),
+  foot:L('Max-Planck-Institut für Rechtsgeschichte und Rechtstheorie','Max Planck Institute for Legal History and Legal Theory'),
+  t1:L('Das Buch','The Journey'), t2:L('auf Reisen','of a Book'),
+  intro:L('Du bist Drucker im 16. Jahrhundert. Bring dein Buch von Salamanca bis nach Lima in Amerika. Unterwegs musst du Entscheidungen treffen.','You are a printer in the 16th century. Get your book from Salamanca all the way to Lima in the Americas. You will have to make decisions along the way.'),
+  nameLbl:L('Wie heißt deine Druckerei?','What is your print shop called?'),
+  namePh:L('z. B. Druckerei Sonnenschein','e.g. Sunshine Press'),
+  defName:L('Meine Druckerei','My Print Shop'),
+  start:L('Los geht’s','Start'),
+  money:L('Dukaten','Ducats'), books:L('Bücher','Books'), rep:L('Ruf','Reputation'),
+  next:L('Weiter','Next'), fact:L('Wusstest du?','Did you know?'),
+  roll:L('Würfeln 🎲','Roll the die 🎲'),
+  finish:L('Zum Ziel','To the finish'),
+  claim:L('Zeig diesen Bildschirm an unserem Stand. Dafür gibt es einen Button!','Show this screen at our stand to get a button!'),
+  again:L('Nochmal spielen','Play again'),
+  profit:L('Gewinn','Profit'), loss:L('Verlust','Loss'),
+  arrived:L('Bücher in Amerika angekommen','Books arrived in the Americas'),
+  stations:[L('Salamanca','Salamanca'),L('Madrid','Madrid'),L('Sevilla','Seville'),L('Atlantik','Atlantic'),L('Lima','Lima')]
+};
+
+/* station coordinates on the map */
+const ST=[[48,34],[92,22],[70,66],[180,50],[292,72]];
+
+const STAGES=[
+{st:0,icon:'📜',title:L('Das Manuskript','The manuscript'),
+ text:L('Salamanca, um 1590. Ein Professor bringt dir ein dickes Manuskript. Es geht um Gerechtigkeit: Wann ist ein Preis fair? Darf ein Bäcker in einer Hungersnot mehr für sein Brot verlangen? Du willst das Buch drucken. Wie viele Exemplare?',
+        'Salamanca, around 1590. A professor brings you a thick manuscript about justice: When is a price fair? May a baker charge more for bread during a famine? You want to print the book. How many copies?'),
+ choices:[
+  {label:L('500 Exemplare (40 Dukaten)','500 copies (40 ducats)'),run:s=>{s.money-=40;s.books=500;return L('Eine kleine Auflage: weniger Risiko, aber auch weniger Gewinn.','A small print run: less risk, but less profit too.');}},
+  {label:L('1500 Exemplare (80 Dukaten)','1,500 copies (80 ducats)'),run:s=>{s.money-=80;s.books=1500;return L('Eine große Auflage! Wenn alles gut geht, verdienst du viel. Wenn nicht, verlierst du viel.','A big print run! If all goes well, you earn a lot. If not, you lose a lot.');}}
+ ],
+ fact:L('Gelehrte der Schule von Salamanca, zum Beispiel Luis de Molina, schrieben dicke Bücher über solche Fragen. Ihre Bücher wurden in ganz Europa gelesen und sogar in Amerika.','Scholars of the School of Salamanca, such as Luis de Molina, wrote thick books about questions like these. Their books were read all over Europe and even in the Americas.')},
+
+{st:1,icon:'🏛️',title:L('Die Erlaubnis','The licence'),
+ text:L('Bevor du druckst, brauchst du eine Lizenz vom Königlichen Rat in Madrid. Der Rat prüft dein Manuskript. Das kostet Zeit und Geld.',
+        'Before you print, you need a licence from the Royal Council in Madrid. The Council checks your manuscript. That costs time and money.'),
+ choices:[
+  {label:L('Lizenz beantragen (15 Dukaten)','Apply for a licence (15 ducats)'),run:s=>{s.money-=15;s.rep+=1;s.license=true;return L('Der Rat liest das Manuskript und gibt dir die Lizenz. Alles ist erlaubt.','The Council reads the manuscript and grants you the licence. Everything is legal.');}},
+  {label:L('Heimlich drucken (kostenlos)','Print secretly (free)'),run:s=>{s.license=false;return L('Du sparst Geld. Aber wenn das jemand merkt, gibt es Ärger.','You save money. But if anyone finds out, there will be trouble.');}}
+ ],
+ fact:L('Seit einem Gesetz von 1558 durfte in Kastilien kein Buch ohne Lizenz gedruckt werden. Wer es trotzdem tat, riskierte hohe Strafen.','Since a law of 1558, no book could be printed in Castile without a licence. Anyone who did so anyway risked severe punishment.')},
+
+{st:1,icon:'🔏',title:L('Das Privileg','The privilege'),
+ text:L('Du kannst auch ein Privileg beantragen. Dann darfst nur du dieses Buch für einige Jahre drucken und verkaufen. Andere Drucker dürfen es nicht nachdrucken.',
+        'You can also apply for a privilege. Then only you may print and sell this book for a number of years. Other printers are not allowed to copy it.'),
+ choices:[
+  {label:L('Privileg beantragen (10 Dukaten)','Apply for a privilege (10 ducats)'),run:s=>{
+    if(!s.license){s.privilege=false;return L('Der Rat fragt: Wo ist deine Lizenz? Ohne Lizenz bekommst du kein Privileg.','The Council asks: Where is your licence? Without a licence, you cannot get a privilege.');}
+    s.money-=10;s.privilege=true;return L('Geschafft: Jetzt ist dein Buch geschützt.','Done: your book is now protected.');}},
+  {label:L('Kein Privileg','No privilege'),run:s=>{s.privilege=false;return L('Du sparst Geld. Hoffentlich druckt niemand dein Buch nach.','You save money. Let’s hope nobody copies your book.');}}
+ ],
+ fact:L('Privilegien galten oft für zehn Jahre. Sie sind ein Vorläufer des heutigen Urheberrechts.','Privileges often lasted ten years. They are a forerunner of today’s copyright.')},
+
+{st:0,icon:'🖨️',title:L('In der Werkstatt','In the workshop'),
+ text:L('Jetzt wird gedruckt! Deine Setzer setzen Buchstabe für Buchstabe, die Presse knarrt. Du brauchst sehr viel Papier. Welches kaufst du?',
+        'Time to print! Your typesetters set letter by letter, the press creaks. You need a lot of paper. Which kind do you buy?'),
+ choices:[
+  {label:s=>L('Gutes Papier ('+s.books/50+' Dukaten)','Good paper ('+s.books/50+' ducats)'),run:s=>{s.money-=s.books/50;s.rep+=1;return L('Schönes, festes Papier. Dein Buch sieht wunderbar aus.','Beautiful, sturdy paper. Your book looks wonderful.');}},
+  {label:s=>L('Billiges Papier ('+s.books/100+' Dukaten)','Cheap paper ('+s.books/100+' ducats)'),run:s=>{s.money-=s.books/100;s.rep-=1;return L('Das Papier ist dünn und fleckig. Die Leser merken das.','The paper is thin and blotchy. Readers notice.');}}
+ ],
+ fact:L('Papier war oft der teuerste Teil beim Buchdruck. Nach dem Druck verglich ein Korrektor das Buch mit dem Manuskript. Die Liste der Druckfehler kam vorne ins Buch.','Paper was often the most expensive part of printing a book. After printing, a proofreader compared the book with the manuscript, and the list of errors was printed at the front.')},
+
+{st:0,icon:'⚖️',title:L('Der feste Preis','The fixed price'),
+ text:L('Dein Buch ist fertig! Die Hälfte verkaufst du in Spanien. Aber der Rat bestimmt den Preis: Du darfst nicht mehr verlangen als die „Tasa“, den amtlichen Preis.',
+        'Your book is finished! You sell half of the copies in Spain. But the Council sets the price: you may not charge more than the “tasa”, the official price.'),
+ choices:[
+  {label:L('Den amtlichen Preis nehmen','Charge the official price'),run:s=>sell(s,false)},
+  {label:L('Heimlich mehr verlangen','Secretly charge more'),run:s=>sell(s,true)}
+ ],
+ fact:L('Die Tasa wurde pro Druckbogen berechnet und steht vorne in vielen spanischen Büchern dieser Zeit. Ist ein fester Preis fair? Genau darüber streiten die Gelehrten in deinem Buch!','The tasa was calculated per printed sheet and appears at the front of many Spanish books of this period. Is a fixed price fair? That is exactly what the scholars in your book argue about!')},
+
+{st:0,icon:'🔍',title:L('Die Kontrolle','The inspection'),
+ text:L('Die Inquisition hat eine neue Liste verbotener Bücher. Ein Satz aus deinem Buch steht darauf! Er soll in allen Exemplaren durchgestrichen werden.',
+        'The Inquisition has published a new list of forbidden books. One sentence from your book is on it! It must be struck out in every copy.'),
+ choices:[
+  {label:L('Den Satz durchstreichen (5 Dukaten)','Strike out the sentence (5 ducats)'),run:s=>{s.money-=5;return check(s,L('Mühsam, aber jetzt ist alles in Ordnung.','Tedious, but now everything is in order.'));}},
+  {label:L('Nichts ändern','Change nothing'),run:s=>{
+    let t;
+    if(chance(0.5)){const lost=Math.floor(s.books/2);s.books-=lost;s.rep-=1;t=L('Ein Beamter kontrolliert deine Werkstatt und nimmt '+lost+' Bücher mit!','An official inspects your workshop and takes away '+lost+' books!');}
+    else t=L('Diesmal hat niemand etwas gemerkt. Glück gehabt!','Nobody noticed this time. Lucky you!');
+    return check(s,t);}}
+ ],
+ fact:L('Oft wurde nicht das ganze Buch verboten. Stattdessen mussten einzelne Stellen durchgestrichen oder überklebt werden. In alten Büchern kann man das heute noch sehen.','Often the whole book was not banned. Instead, individual passages had to be struck out or pasted over. You can still see this in old books today.')},
+
+{st:2,icon:'⚓',title:L('Im Hafen','At the port'),
+ text:L('Sevilla! Von hier fahren die Schiffe nach Amerika. Alle Bücher müssen auf eine Liste geschrieben werden, und die Liste wird kontrolliert.',
+        'Seville! Ships leave from here for the Americas. All books must be written on a list, and the list is checked.'),
+ choices:[
+  {label:L('Alles ehrlich aufschreiben (10 Dukaten)','Register everything honestly (10 ducats)'),run:s=>{s.money-=10;s.rep+=1;return L('Die Kontrolleure nicken. Deine Bücher dürfen an Bord.','The inspectors nod. Your books may go on board.');}},
+  {label:L('Bücher in Weinfässern verstecken','Hide books in wine barrels'),run:s=>{
+    if(chance(0.45)){const lost=Math.floor(s.books/2);s.books-=lost;s.rep-=1;return L('Ein Kontrolleur klopft auf ein Fass. Es klingt nicht nach Wein! '+lost+' Bücher werden beschlagnahmt.','An inspector knocks on a barrel. It doesn’t sound like wine! '+lost+' books are confiscated.');}
+    return L('Niemand schaut in die Fässer. Du sparst die Gebühren.','Nobody looks inside the barrels. You save the fees.');}}
+ ],
+ fact:L('Bücher für Amerika wurden in Sevilla auf Listen eingetragen und geprüft. Trotzdem versuchten manche, Bücher zwischen anderen Waren zu schmuggeln.','Books bound for the Americas were recorded on lists in Seville and checked. Even so, some people tried to smuggle books hidden among other goods.')},
+
+{st:3,icon:'🌊',title:L('Über den Ozean','Across the ocean'),
+ text:L('Deine Bücher sind an Bord. Die Flotte fährt über den Atlantik, die Reise dauert viele Wochen. Würfle, wie das Wetter wird!',
+        'Your books are on board. The fleet sails across the Atlantic; the voyage takes many weeks. Roll the die to see what the weather brings!'),
+ dice:true,
+ choices:[
+  {label:()=>UI.roll,run:s=>{
+    const r=1+Math.floor(Math.random()*6);s.roll=r;
+    if(r===1){const lost=Math.floor(s.books/3);s.books-=lost;return L('Ein Sturm! Wasser dringt in den Laderaum, '+lost+' Bücher sind verloren.','A storm! Water floods the hold and '+lost+' books are lost.');}
+    if(r===6){s.money+=15;return L('Toller Rückenwind! Du kommst früher an, und der Buchhändler zahlt dir einen Bonus.','Great tailwind! You arrive early, and the bookseller pays you a bonus.');}
+    return L('Ruhige See. Die Bücher kommen trocken an.','Calm seas. The books arrive dry.');}}
+ ],
+ fact:L('Schiffe fuhren meist in großen Flotten, zum Schutz vor Stürmen und Piraten. Trotzdem kam nicht jede Ladung an.','Ships usually sailed in large fleets for protection against storms and pirates. Even so, not every cargo arrived.')},
+
+{st:4,icon:'📚',title:L('Angekommen in Lima','Arriving in Lima'),
+ text:L('Lima, in Peru! Ein Buchhändler wartet schon auf dich. Hier sind Bücher selten und begehrt.',
+        'Lima, in Peru! A bookseller is already waiting for you. Books are rare and in demand here.'),
+ choices:[
+  {label:L('Bücher verkaufen','Sell the books'),run:s=>{
+    s.arrived=s.books;
+    if(s.books<=0)return L('Leider hast du keine Bücher mehr. Der Buchhändler ist enttäuscht.','Sadly you have no books left. The bookseller is disappointed.');
+    const inc=Math.round(s.books*0.4);s.money+=inc;s.books=0;
+    return L('Der Buchhändler kauft alles und zahlt gut: '+inc+' Dukaten! Bald lesen Juristen und Studenten in Lima dein Buch.','The bookseller buys everything and pays well: '+inc+' ducats! Soon lawyers and students in Lima will be reading your book.');}}
+ ],
+ fact:L('In Amerika waren Bücher oft viel teurer als in Spanien, denn der Weg war weit und riskant. Auch dort las man Bücher der Gelehrten aus Salamanca.','Books were often much more expensive in the Americas than in Spain, because the journey was long and risky. People there read the works of the Salamanca scholars too.')}
+];
+
+function sell(s,over){
+  const local=Math.floor(s.books/2);let f=1;let t=EMPTY;
+  if(!s.privilege&&chance(0.6)){f=0.6;t=L('Oje: Ein anderer Drucker hat dein Buch nachgedruckt und verkauft es billiger!','Oh no: another printer has copied your book and sells it more cheaply!');}
+  let inc;
+  if(over){
+    if(chance(0.5)){inc=Math.round(local*0.2*f)-30;s.rep-=1;t=cat(t,L('Ein Kunde beschwert sich beim Rat. Du musst 30 Dukaten Strafe zahlen!','A customer complains to the Council. You have to pay a 30 ducat fine!'));}
+    else{inc=Math.round(local*0.3*f);t=cat(t,L('Niemand beschwert sich, und du verdienst extra.','Nobody complains, and you earn extra.'));}
+  }else{inc=Math.round(local*0.2*f);t=cat(t,L('Die Kunden sind zufrieden, und dein Ruf ist gut.','Your customers are happy, and your reputation is good.'));}
+  s.money+=inc;s.books-=local;return t;
+}
+function check(s,t){
+  if(!s.license&&chance(0.4)){const lost=Math.floor(s.books/3);s.books-=lost;s.rep-=1;
+    t=cat(t,L('Dann fragt der Beamte nach deiner Lizenz. Du hast keine! Er nimmt '+lost+' Bücher mit.','Then the official asks for your licence. You don’t have one! He takes '+lost+' books.'));}
+  return t;
+}
+
+let S;
+function fresh(lang){return {lang:lang||'de',phase:'start',name:'',money:150,books:0,rep:3,i:0,license:false,privilege:false,roll:0,arrived:0,visited:[0],result:null,before:null};}
+S=fresh();
+
+const app=document.getElementById('app');
+const tx=o=>o?o[S.lang]:'';
+const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clamp=v=>Math.max(0,Math.min(5,v));
+
+function mapSVG(){
+  const cur=S.phase==='start'?0:(S.phase==='end'?4:STAGES[S.i].st);
+  const [mx,my]=ST[cur];
+  const stops=ST.map((p,k)=>`<circle class="stop${S.visited.includes(k)?' done':''}" cx="${p[0]}" cy="${p[1]}" r="5"/>`).join('');
+  const lbl=[[48,50,'middle'],[92,13,'middle'],[70,82,'middle'],[180,68,'middle'],[292,88,'middle']]
+    .map((p,k)=>`<text class="lbl" x="${p[0]}" y="${p[1]}" text-anchor="${p[2]}">${esc(tx(UI.stations[k]))}</text>`).join('');
+  return `<div class="map" aria-hidden="true"><svg viewBox="0 0 330 95">
+    <path class="land" d="M18 12 Q60 2 118 14 Q128 40 110 62 Q96 90 58 88 Q22 84 16 56 Q10 30 18 12Z"/>
+    <path class="land" d="M262 40 Q300 30 322 46 L322 95 L270 95 Q256 70 262 40Z"/>
+    <path class="route" d="M48 34 L92 22 M48 34 L70 66 M70 66 Q130 40 180 50 Q240 60 292 72"/>
+    ${stops}${lbl}
+    <g class="marker" style="transform:translate(${mx}px,${my-14}px)"><text x="0" y="0" text-anchor="middle" font-size="18">📕</text></g>
+  </svg></div>`;
+}
+function statsHTML(){
+  return `<div class="stats">
+    <div class="stat"><b>🪙 ${Math.round(S.money)}</b><span>${tx(UI.money)}</span></div>
+    <div class="stat"><b>📚 ${S.books}</b><span>${tx(UI.books)}</span></div>
+    <div class="stat"><b>${'⭐'.repeat(Math.max(1,clamp(S.rep)))}</b><span>${tx(UI.rep)}</span></div>
+  </div>`;
+}
+function chips(){
+  const b=S.before;if(!b)return '';
+  const out=[];
+  const d=(v,icon)=>{if(!v)return;const r=Math.round(v);out.push(`<span class="chip ${r>0?'up':'down'}">${r>0?'+':'−'}${Math.abs(r)} ${icon}</span>`);};
+  d(S.money-b.money,'🪙');d(S.books-b.books,'📚');d(clamp(S.rep)-clamp(b.rep),'⭐');
+  return out.length?`<div class="chips">${out.join('')}</div>`:'';
+}
+
+function render(){
+  document.documentElement.lang=S.lang;
+  document.getElementById('brand').textContent=tx(UI.brand);
+  document.getElementById('foot').textContent=tx(UI.foot);
+  document.getElementById('lang-de').setAttribute('aria-pressed',S.lang==='de');
+  document.getElementById('lang-en').setAttribute('aria-pressed',S.lang==='en');
+
+  if(S.phase==='start'){
+    app.innerHTML=`<div class="hero anim"><h1>${tx(UI.t1)}<span class="l2">${tx(UI.t2)}</span></h1><p>${tx(UI.intro)}</p></div>
+      ${mapSVG()}
+      <div class="scene"><label for="nm">${tx(UI.nameLbl)}</label>
+      <input id="nm" maxlength="24" autocomplete="off" placeholder="${esc(tx(UI.namePh))}" value="${esc(S.name)}">
+      <button class="btn primary" id="go">${tx(UI.start)}</button></div>`;
+    const nm=document.getElementById('nm');
+    nm.addEventListener('input',e=>S.name=e.target.value);
+    nm.addEventListener('keydown',e=>{if(e.key==='Enter')begin();});
+    document.getElementById('go').onclick=begin;
+    return;
+  }
+  if(S.phase==='end'){renderEnd();return;}
+
+  const st=STAGES[S.i];
+  let body;
+  if(S.phase==='scene'){
+    body=`<p>${tx(st.text)}</p><div class="choices">${st.choices.map((c,k)=>{
+      const lab=typeof c.label==='function'?c.label(S):c.label;
+      return `<button class="btn${st.dice?' primary':''}" data-k="${k}">${esc(tx(lab))}</button>`;}).join('')}</div>`;
+  }else{
+    const last=S.i===STAGES.length-1;
+    body=`<div aria-live="polite">${st.dice&&S.roll?`<div class="die">${'⚀⚁⚂⚃⚄⚅'[S.roll-1]}</div>`:''}
+      <p>${tx(S.result)}</p>${chips()}
+      <div class="fact"><strong>${tx(UI.fact)}</strong><p>${tx(st.fact)}</p></div></div>
+      <button class="btn primary" id="nx">${tx(last?UI.finish:UI.next)}</button>`;
+  }
+  app.innerHTML=`${mapSVG()}${statsHTML()}
+    <section class="scene anim"><p class="place">${tx(UI.stations[st.st])}</p>
+    <span class="icon" aria-hidden="true">${st.icon}</span><h2>${tx(st.title)}</h2>${body}</section>`;
+
+  if(S.phase==='scene'){
+    app.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>choose(+b.dataset.k,b));
+  }else{
+    document.getElementById('nx').onclick=advance;
+    document.getElementById('nx').focus({preventScroll:true});
+  }
+}
+
+function begin(){
+  S.name=(S.name||'').trim()||tx(UI.defName);
+  S.phase='scene';S.i=0;render();window.scrollTo(0,0);
+}
+function choose(k,btn){
+  const st=STAGES[S.i];
+  const go=()=>{
+    S.before={money:S.money,books:S.books,rep:S.rep};
+    S.result=st.choices[k].run(S);
+    S.phase='result';render();
+  };
+  if(st.dice&&!reduced){
+    app.querySelectorAll('button').forEach(b=>b.disabled=true);
+    let n=0;const f='⚀⚁⚂⚃⚄⚅';
+    const iv=setInterval(()=>{btn.textContent=f[Math.floor(Math.random()*6)];if(++n>9){clearInterval(iv);go();}},70);
+  }else go();
+}
+function advance(){
+  S.i++;S.before=null;S.roll=0;
+  if(S.i>=STAGES.length){S.phase='end';if(!S.visited.includes(4))S.visited.push(4);}
+  else{S.phase='scene';const st=STAGES[S.i].st;if(!S.visited.includes(st))S.visited.push(st);}
+  render();window.scrollTo(0,0);
+}
+
+function renderEnd(){
+  const profit=Math.round(S.money-150);
+  let title,text;
+  if(S.arrived<=0){
+    title=L('Leider kein Buch in Amerika','No books reached the Americas');
+    text=L('Deine Bücher haben es nicht bis nach Lima geschafft. So erging es damals vielen Druckern. Versuch es noch einmal mit anderen Entscheidungen!','Your books didn’t make it to Lima. That happened to many printers back then. Try again with different decisions!');
+  }else if(profit>=100&&S.rep>=4){
+    title=L('Meisterdrucker!','Master printer!');
+    text=L('Dein Buch hat die weite Reise geschafft, du hast gut verdient und alle vertrauen dir. So wurden Bücher aus Salamanca in der ganzen Welt bekannt.','Your book made the long journey, you earned well, and everyone trusts you. This is how books from Salamanca became known around the world.');
+  }else if(profit>=0){
+    title=L('Geschafft!','You made it!');
+    text=L('Dein Buch ist in Amerika angekommen, und du hast Gewinn gemacht. Menschen auf der anderen Seite des Ozeans lesen jetzt über gerechte Preise.','Your book has arrived in the Americas and you made a profit. People on the other side of the ocean are now reading about fair prices.');
+  }else{
+    title=L('Angekommen, aber mit Verlust','Arrived, but at a loss');
+    text=L('Dein Buch hat Lima erreicht, aber du hast mehr ausgegeben als verdient. Buchdruck war ein riskantes Geschäft!','Your book reached Lima, but you spent more than you earned. Printing was a risky business!');
+  }
+  const nm=esc(S.name.toUpperCase());
+  const initial=esc((S.name.trim()[0]||'D').toUpperCase());
+  app.innerHTML=`${mapSVG()}
+    <section class="scene anim" style="text-align:center">
+      <svg class="seal" viewBox="0 0 200 200" role="img" aria-label="${esc(S.name)}">
+        <defs><path id="arc" d="M100 100 m-72 0 a72 72 0 1 1 144 0 a72 72 0 1 1 -144 0"/></defs>
+        <circle class="ring" cx="100" cy="100" r="92"/><circle class="ring2" cx="100" cy="100" r="58"/>
+        <text font-size="15" letter-spacing="2"><textPath href="#arc" startOffset="25%" text-anchor="middle">${nm}</textPath></text>
+        <text x="100" y="118" font-size="56" text-anchor="middle">${initial}</text>
+        <text x="100" y="178" font-size="13" text-anchor="middle">1590</text>
+      </svg>
+      <h2>${tx(title)}</h2><p>${tx(text)}</p>
+      <div class="stats">
+        <div class="stat"><b>🪙 ${profit>=0?'+':'−'}${Math.abs(profit)}</b><span>${tx(profit>=0?UI.profit:UI.loss)}</span></div>
+        <div class="stat"><b>📚 ${S.arrived}</b><span>${tx(UI.arrived)}</span></div>
+        <div class="stat"><b>${'⭐'.repeat(Math.max(1,clamp(S.rep)))}</b><span>${tx(UI.rep)}</span></div>
+      </div>
+      <p class="claim">${tx(UI.claim)}</p>
+      <button class="btn" id="again" style="text-align:center">${tx(UI.again)}</button>
+    </section>`;
+  document.getElementById('again').onclick=()=>{S=fresh(S.lang);render();window.scrollTo(0,0);};
+}
+
+document.getElementById('lang-de').onclick=()=>{S.lang='de';render();};
+document.getElementById('lang-en').onclick=()=>{S.lang='en';render();};
+render();
+})();
+</script>
+</body>
+</html>
